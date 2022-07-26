@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.2.0/redux.min.js" integrity="sha512-1/8Tj23BRrWnKZXeBruk6wTnsMJbi/lJsk9bsRgVwb6j5q39n0A00gFjbCTaDo5l5XrPVv4DZXftrJExhRF/Ug==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    </head>
+    <body>
+        <div id="subject"></div>
+        <div id="toc"></div>
+        <div id="control"></div>
+        <div id="article"></div>
+            <script>
+                function subject(){
+                    document.querySelector('#subject').innerHTML = `
+                    <header>
+                        <h1>WEB</h1>
+                        Hello, WEB!
+                    </header>
+                    `
+                }
+                function TOC(){
+                    var state = store.getState(); //글 목록을 store에 있는 정보로 가져오기
+                    var i = 0;
+                    var liTags = '';
+                    while(i<state.contents.length){
+                        liTags = liTags + `
+                            <li>
+                                <a href="${state.contents[i].id}">${state.contents[i].title}</a>
+                            </li>`;
+                        i = i + 1;
+                    }
+                    document.querySelector('#toc').innerHTML = `
+                    <ol>${liTags}</ol>
+                    `
+                }
+                function control(){
+                    document.querySelector('#control').innerHTML = `
+                    <ul>
+                        <li><a href="/create">create</a></li>
+                        <li><input type="button" value="delete"></li>
+                    </ul>
+                    `
+                }
+                function article(){
+                    document.querySelector('#article').innerHTML = `
+                    <article>
+                        <h2>HTML</h2>
+                            HTML is ...
+                    </article>
+                    `
+                }
+                function reducer(state, action){
+                    if(state === undefined){
+                        return {
+                            contents:[ //contents라는 propoty가 있는 state값을 만들어줌(객체)
+                                {id:1,title:'HTML',desc:'HTML is ...'}, 
+                                {id:2,title:'CSS',desc:'CSS is ..'}
+                            ]
+                        }
+                    }
+                }
+                var store = Redux.createStore(reducer);
+                subject();
+                TOC();
+                control();
+                article();
+            </script>
+    </body>
+</html>
