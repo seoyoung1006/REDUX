@@ -36,7 +36,9 @@
                         i = i + 1;
                     }
                     document.querySelector('#toc').innerHTML = `
-                    <ol>${liTags}</ol>
+                    <nav>
+                        <ol>${liTags}</ol>
+                    </nav>
                     `
                 }
                 function control(){
@@ -44,22 +46,28 @@
                     <ul>
                         <li><a onclick="
                             event.preventDefault();
-                            
-                            
-                            "href="/create">create</a></li>
-                        <li><input type="button" value="delete"></li>
+                            store.dispatch({
+                                type:'CHANGE_MODE',
+                                mode:'create'
+                            });
+                            " href="/create">create</a></li>
+                        <li><input onclick="
+                            store.dispatch({
+                                type:'DELETE'
+                            });
+                            " type="button" value="delete"></li>
                     </ul>
-                    `
+                    `;
                 }
                 function article(){
                     var state = store.getState();
                     if(state.mode === 'create'){
-                        document.querySelector('#content').innerHTML = `
+                        document.querySelector('#article').innerHTML = `
                         <article>
                             <form onsubmit="
                                 event.preventDefault();
-                                var title = this.title.value;
-                                var desc = this.desc.value;
+                                var _title = this.title.value;
+                                var _desc = this.desc.value;
                                 store.dispatch({
                                     type:'CREATE',
                                     title:_title,
@@ -97,6 +105,13 @@
                                 ${aDesc}
                         </article>
                         `
+                    }else if(state.mode === 'welcome'){
+                        document.querySelector('#article').innerHTML = `
+                        <article>
+                            <h2>Welcome</h2>
+                            Hello. Redux!!
+                        </article>
+                        `
                     }
                     
                 }
@@ -104,28 +119,47 @@
                     if(state === undefined){
                         return {
                             max_id:2,
-                            mode:'create',
-                            selected_id:null,
+                            mode:'welcome',
+                            selected_id:2,
                             contents:[ //contents라는 propoty가 있는 state값을 만들어줌(객체)
                                 {id:1,title:'HTML',desc:'HTML is ...'}, 
                                 {id:2,title:'CSS',desc:'CSS is ..'}
                             ]
                         }
                     }
-                    var newState = {};
+                    var newState;
                     if(action.type === 'SELECT'){
-                        newState = Object.assign({}, state, {selected_id:action.id});
+                        newState = Object.assign({}, state, {selected_id:action.id, mode:'read'});
                     }else if(action.type === 'CREATE'){
                         var newMaxId = state.max_id + 1;
                         var newContents = state.contents.concat();
-                        newContents.push({title:action.title, desc:action.desc});
+                        newContents.push({id:newMaxId, title:action.title, desc:action.desc});
                         newState = Object.assign({},state, {
                             max_id:newMaxId,
                             contents:newContents,
                             mode:'read'
-                        })
+                        });
+                    }else if(action.type === 'DELETE'){
+                        var newContents = [];
+                        var i = 0;
+                        while(i < state.contents.length){
+                            if(state.selected_id !== state.contents[i].id){
+                                newContents.push(
+                                    state.contents[i]
+                                );
+                            }
+                            i = i + 1;
+                        }
+                        newState = Object.assign({},state, {
+                            contents:newContents,
+                            mode:'welcome'
+                        });
+                    }else if(action.type === 'CHANGE_MODE'){
+                        newState = Object.assign({}, state, {
+                            mode:action.mode
+                        });
                     }
-                    console.log(action,state, newState);
+                    console.log(action, state, newState);
                     return newState;
                 }
                 var store = Redux.createStore(reducer);
